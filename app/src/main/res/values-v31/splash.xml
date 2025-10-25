@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.GoChickFarm.Splash" parent="Theme.GoChickFarm">
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_avd_gochickfarm</item>
+        <item name="android:windowSplashScreenBackground">@color/md_theme_primary</item>
+        <item name="android:windowSplashScreenAnimationDuration">1000</item>
+    </style>
+</resources>
