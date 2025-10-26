@@ -53,8 +53,8 @@ import com.zetta.gochickfarm.ui.theme.AppTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AuthScreen(
-    onSignIn: () -> Unit,
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -203,7 +203,7 @@ fun AuthScreen(
                     }
                     if (isEmailError || isPasswordError) return@AppButton
 
-                    onSignIn()
+                    onLoginSuccess()
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -215,12 +215,12 @@ fun AuthScreen(
 @Composable
 private fun LightPreview() {
     AppTheme {
-        AuthScreen({})
+        LoginScreen({})
     }
 }
 
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES, backgroundColor = 0xFF0F1511)
 @Composable
 private fun DarkPreview() {
-    AppTheme { AuthScreen({}) }
+    AppTheme { LoginScreen({}) }
 }
