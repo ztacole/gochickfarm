@@ -1,7 +1,6 @@
 package com.zetta.gochickfarm.ui.screen.auth
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,52 +23,59 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getString
 import com.zetta.gochickfarm.R
 import com.zetta.gochickfarm.ui.components.AppButton
+import com.zetta.gochickfarm.ui.components.AppDialog
 import com.zetta.gochickfarm.ui.components.AppTextField
 import com.zetta.gochickfarm.ui.theme.AppTheme
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LoginScreen(
-    onLoginSuccess: () -> Unit,
+    loginUiState: AuthViewModel.LoginUiState,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit,
+    onNavigateToDashboard: () -> Unit,
+    onClearAuthError: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val imeVisible = WindowInsets.isImeVisible
     val focusManager = LocalFocusManager.current
 
-    var email by remember { mutableStateOf("") }
-    var isEmailError by remember { mutableStateOf(false) }
-    var emailErrorMessage by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var isPasswordError by remember { mutableStateOf(false) }
-    var passwordErrorMessage by remember { mutableStateOf("") }
-    var isPasswordVisible by remember { mutableStateOf(true) }
+    var isPasswordVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(
+        key1 = loginUiState.authenticationSucceed
+    ) {
+        if (loginUiState.authenticationSucceed) onNavigateToDashboard()
+    }
 
     Box(
         modifier = modifier
@@ -87,7 +94,7 @@ fun LoginScreen(
             Image(
                 painter = painterResource(R.drawable.logo_gochickfarm),
                 contentDescription = null,
-                modifier = Modifier,
+                modifier = Modifier.scale(1.2f),
                 colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
             )
             Spacer(Modifier.height(96.dp))
@@ -99,29 +106,19 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(4.dp))
             AppTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = loginUiState.email,
+                onValueChange = onEmailChange,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(R.string.auth_input_email_placeholder),
-                isError = isEmailError,
-                errorMessage = emailErrorMessage,
+                isError = loginUiState.isEmailError,
+                errorMessage = loginUiState.emailErrorMessage,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next,
                     capitalization = KeyboardCapitalization.None
                 ),
                 keyboardActions = KeyboardActions {
-                    if (email.isBlank()) {
-                        isEmailError = true
-                        emailErrorMessage = getString(context, R.string.auth_input_required)
-                    } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        isEmailError = true
-                        emailErrorMessage = getString(context, R.string.auth_input_email_invalid)
-                    } else {
-                        isEmailError = false
-                        emailErrorMessage = ""
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
+                    focusManager.moveFocus(FocusDirection.Down)
                 }
             )
             Spacer(Modifier.height(16.dp))
@@ -133,28 +130,22 @@ fun LoginScreen(
             )
             Spacer(Modifier.height(4.dp))
             AppTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = loginUiState.password,
+                onValueChange = onPasswordChange,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(R.string.auth_input_password_placeholder),
-                isError = isPasswordError,
-                errorMessage = passwordErrorMessage,
+                isError = loginUiState.isPasswordError,
+                errorMessage = loginUiState.passwordErrorMessage,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done,
                     capitalization = KeyboardCapitalization.None
                 ),
                 keyboardActions = KeyboardActions {
-                    if (password.isBlank()) {
-                        isPasswordError = true
-                        passwordErrorMessage = getString(context, R.string.auth_input_required)
-                    } else {
-                        isPasswordError = false
-                        passwordErrorMessage = ""
-                        focusManager.clearFocus()
-                    }
+                    focusManager.clearFocus()
+                    onLoginClick()
                 },
-                hideValue = isPasswordVisible,
+                hideValue = !isPasswordVisible,
                 trailingIcon = {
                     IconButton(
                         onClick = { isPasswordVisible = !isPasswordVisible },
@@ -182,45 +173,50 @@ fun LoginScreen(
 
             AppButton(
                 text = stringResource(R.string.auth_text_login),
-                onClick = {
-                    if (email.isBlank()) {
-                        isEmailError = true
-                        emailErrorMessage = getString(context, R.string.auth_input_required)
-                    } else {
-                        isEmailError = false
-                        emailErrorMessage = ""
-                    }
-                    if (password.isBlank()) {
-                        isPasswordError = true
-                        passwordErrorMessage = getString(context, R.string.auth_input_required)
-                    } else {
-                        isPasswordError = false
-                        passwordErrorMessage = ""
-                    }
-                    if (!Patterns.EMAIL_ADDRESS.matcher(email).matches() && !isEmailError) {
-                        isEmailError = true
-                        emailErrorMessage = getString(context, R.string.auth_input_email_invalid)
-                    }
-                    if (isEmailError || isPasswordError) return@AppButton
-
-                    onLoginSuccess()
-                },
+                onClick = onLoginClick,
                 modifier = Modifier.fillMaxWidth()
             )
         }
     }
+
+    // Loading Dialog
+    AppDialog(
+        show = loginUiState.isAuthenticating,
+        onDismiss = { },
+        content = { CircularProgressIndicator(modifier = Modifier.padding(vertical = 16.dp)) }
+    )
+
+    // Auth Failed Dialog
+    AppDialog(
+        show = loginUiState.authenticationErrorMessage != null,
+        onDismiss = { },
+        title = stringResource(R.string.auth_failed_title),
+        content = {
+            Text(
+                text = loginUiState.authenticationErrorMessage!!,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            AppButton(
+                text = stringResource(R.string.text_ok),
+                onClick = onClearAuthError
+            )
+        }
+    )
 }
 
 @Preview(showSystemUi = true, backgroundColor = 0xFFF5FBF5)
 @Composable
 private fun LightPreview() {
     AppTheme {
-        LoginScreen({})
+        Login({})
     }
 }
 
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES, backgroundColor = 0xFF0F1511)
 @Composable
 private fun DarkPreview() {
-    AppTheme { LoginScreen({}) }
+    AppTheme { Login({}) }
 }

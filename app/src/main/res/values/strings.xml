@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">GoChick Farm</string>
 
+    <!-- Common -->
+    <string name="text_ok">OK</string>
+
     <!-- Auth -->
     <string name="auth_text_email">Email</string>
     <string name="auth_text_password">Password</string>
@@ -10,5 +13,6 @@
     <string name="auth_input_password_placeholder">Enter your password here…</string>
     <string name="auth_input_email_invalid">Invalid email format</string>
     <string name="auth_input_required">This field cannot be empty</string>
+    <string name="auth_failed_title">Login Failed</string>
 
 </resources>
