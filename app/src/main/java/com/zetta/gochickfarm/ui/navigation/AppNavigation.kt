@@ -1,5 +1,7 @@
 package com.zetta.gochickfarm.ui.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -10,7 +12,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.zetta.gochickfarm.ui.screen.activity.ActivityHistoryScreen
 import com.zetta.gochickfarm.ui.screen.activity.OfflineSyncScreen
@@ -19,7 +20,8 @@ import com.zetta.gochickfarm.ui.screen.animal.AddAnimalScreen
 import com.zetta.gochickfarm.ui.screen.animal.AnimalDetailScreen
 import com.zetta.gochickfarm.ui.screen.animal.AnimalListScreen
 import com.zetta.gochickfarm.ui.screen.animal.UpdateAnimalStatusScreen
-import com.zetta.gochickfarm.ui.screen.auth.LoginScreen
+import com.zetta.gochickfarm.ui.screen.auth.Login
+import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
 import com.zetta.gochickfarm.ui.screen.dashboard.DashboardScreen
 import com.zetta.gochickfarm.ui.screen.feed.AddFeedScreen
 import com.zetta.gochickfarm.ui.screen.feed.FeedListScreen
@@ -32,8 +34,9 @@ import com.zetta.gochickfarm.ui.screen.transaction.TransactionListScreen
 
 @Composable
 fun AppNavigation(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
+    startDestination: Screen,
+    modifier: Modifier = Modifier
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -58,16 +61,18 @@ fun AppNavigation(
                 )
             }
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Login.route,
-            modifier = modifier.padding(paddingValues)
+            startDestination = startDestination.route,
+            modifier = modifier.padding(innerPadding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None }
         ) {
             // Login Screen
             composable(Screen.Login.route) {
-                LoginScreen(
-                    onLoginSuccess = {
+                Login(
+                    onNavigateToDashboard = {
                         navController.navigate(Screen.Dashboard.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
@@ -77,7 +82,7 @@ fun AppNavigation(
 
             // Dashboard Screen
             composable(Screen.Dashboard.route) {
-                DashboardScreen(
+                Dashboard(
                     onNavigateToAddFeeding = {
                         navController.navigate(Screen.AddFeedingLog.createRoute())
                     },

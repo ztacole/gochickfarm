@@ -129,14 +129,12 @@ private fun LightPreview() {
             AppButton(
                 text = "Button",
                 onClick = { },
-//                enabled = false,
                 modifier = Modifier.padding(8.dp),
                 outlineMode = true
             )
             AppButton(
                 text = "Button",
                 onClick = { },
-//                enabled = false,
                 modifier = Modifier.padding(8.dp)
             )
         }
@@ -152,14 +150,12 @@ private fun DarkPreview() {
             AppButton(
                 text = "Button",
                 onClick = { },
-//                enabled = false,
                 modifier = Modifier.padding(8.dp),
                 outlineMode = true
             )
             AppButton(
                 text = "Button",
                 onClick = { },
-//                enabled = false,
                 modifier = Modifier.padding(8.dp)
             )
         }
