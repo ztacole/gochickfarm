@@ -91,7 +91,7 @@ sealed class BottomNavItem(
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController,
+    onNavigate: (String) -> Unit,
     currentDestination: NavDestination?
 ) {
     val items = listOf(
@@ -173,11 +173,7 @@ fun BottomNavigationBar(
                             val currentTime = System.currentTimeMillis()
                             if (index != selectedIndex && currentTime - lastClickTime > 500) {
                                 lastClickTime = currentTime
-                                navController.navigate(item.route) {
-                                    popUpTo(Screen.Dashboard.route) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                                onNavigate(item.route)
                             }
                         },
                         modifier = Modifier

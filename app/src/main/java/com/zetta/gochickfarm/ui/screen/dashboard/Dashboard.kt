@@ -9,6 +9,8 @@ fun Dashboard(
     onNavigateToAddFeeding: () -> Unit,
     onNavigateToBreeding: () -> Unit,
     onNavigateToTransaction: () -> Unit,
+    onNavigateToGoatSearch: (category: String) -> Unit,
+    onNavigateToChickenSearch: (category: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val viewModel: DashboardViewModel = koinViewModel()
@@ -18,6 +20,8 @@ fun Dashboard(
         onNavigateToAddFeeding = onNavigateToAddFeeding,
         onNavigateToBreeding = onNavigateToBreeding,
         onNavigateToTransaction = onNavigateToTransaction,
+        onNavigateToGoatSearch = onNavigateToGoatSearch,
+        onNavigateToChickenSearch = onNavigateToChickenSearch,
         modifier = modifier
     )
 }

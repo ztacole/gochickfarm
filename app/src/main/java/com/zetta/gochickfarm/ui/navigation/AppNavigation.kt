@@ -2,11 +2,14 @@ package com.zetta.gochickfarm.ui.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -16,13 +19,12 @@ import androidx.navigation.navArgument
 import com.zetta.gochickfarm.ui.screen.activity.ActivityHistoryScreen
 import com.zetta.gochickfarm.ui.screen.activity.OfflineSyncScreen
 import com.zetta.gochickfarm.ui.screen.activity.ProfileScreen
-import com.zetta.gochickfarm.ui.screen.animal.AddAnimalScreen
-import com.zetta.gochickfarm.ui.screen.animal.AnimalDetailScreen
-import com.zetta.gochickfarm.ui.screen.animal.AnimalListScreen
-import com.zetta.gochickfarm.ui.screen.animal.UpdateAnimalStatusScreen
+import com.zetta.gochickfarm.ui.screen.animal.add.AddAnimalScreen
+import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailScreen
+import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListScreen
+import com.zetta.gochickfarm.ui.screen.animal.update.UpdateAnimalStatusScreen
 import com.zetta.gochickfarm.ui.screen.auth.Login
 import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
-import com.zetta.gochickfarm.ui.screen.dashboard.DashboardScreen
 import com.zetta.gochickfarm.ui.screen.feed.AddFeedScreen
 import com.zetta.gochickfarm.ui.screen.feed.FeedListScreen
 import com.zetta.gochickfarm.ui.screen.feeding.AddBreedingLogScreen
@@ -47,7 +49,7 @@ fun AppNavigation(
         Screen.AnimalList.route,
         Screen.FeedList.route,
         Screen.TransactionList.route,
-        Screen.Profile.route
+//        Screen.Profile.route
     )
 
     val showBottomBar = currentDestination?.route in bottomNavScreens
@@ -56,16 +58,31 @@ fun AppNavigation(
         bottomBar = {
             if (showBottomBar) {
                 BottomNavigationBar(
-                    navController = navController,
-                    currentDestination = currentDestination
+                    onNavigate = {
+                        navController.navigate(it) {
+                            if (it == Screen.AnimalList.route)
+                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("category")
+                            popUpTo(Screen.Dashboard.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    currentDestination = currentDestination,
                 )
             }
         }
     ) { innerPadding ->
+        val modifierPadding = modifier.padding(
+            if (currentDestination?.route != null && currentDestination.route != Screen.Dashboard.route) {
+                PaddingValues(start = innerPadding.calculateLeftPadding(LayoutDirection.Ltr), end = innerPadding.calculateRightPadding(LayoutDirection.Ltr), top = 0.dp, bottom = innerPadding.calculateBottomPadding())
+            } else {
+                PaddingValues(start = innerPadding.calculateLeftPadding(LayoutDirection.Ltr), end = innerPadding.calculateRightPadding(LayoutDirection.Ltr), top = 0.dp, bottom = innerPadding.calculateBottomPadding())
+            }
+        )
         NavHost(
             navController = navController,
             startDestination = startDestination.route,
-            modifier = modifier.padding(innerPadding),
+            modifier = modifierPadding,
             enterTransition = { EnterTransition.None },
             exitTransition = { ExitTransition.None }
         ) {
@@ -91,6 +108,22 @@ fun AppNavigation(
                     },
                     onNavigateToTransaction = {
                         navController.navigate(Screen.AddTransaction.route)
+                    },
+                    onNavigateToGoatSearch = { category ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("category", category)
+                        navController.navigate(Screen.AnimalList.route) {
+                            popUpTo(Screen.Dashboard.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onNavigateToChickenSearch = { category ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("category", category)
+                        navController.navigate(Screen.AnimalList.route) {
+                            popUpTo(Screen.Dashboard.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 )
             }

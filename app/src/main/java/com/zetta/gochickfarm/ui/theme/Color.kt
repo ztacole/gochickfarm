@@ -1,7 +1,7 @@
 package com.zetta.gochickfarm.ui.theme
 import androidx.compose.ui.graphics.Color
 
-val primaryLight = Color(0xFF226A4C)
+val primaryLight = Color(0xFF00311F)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFAAF2CC)
 val onPrimaryContainerLight = Color(0xFF005236)
@@ -64,7 +64,7 @@ val outlineVariantDark = Color(0xFF404943)
 val scrimDark = Color(0xFF000000)
 val inverseSurfaceDark = Color(0xFFDEE4DE)
 val inverseOnSurfaceDark = Color(0xFF2C322E)
-val inversePrimaryDark = Color(0xFF226A4C)
+val inversePrimaryDark = Color(0xFF00311F)
 val surfaceDimDark = Color(0xFF0F1511)
 val surfaceBrightDark = Color(0xFF353B37)
 val surfaceContainerLowestDark = Color(0xFF0A0F0C)

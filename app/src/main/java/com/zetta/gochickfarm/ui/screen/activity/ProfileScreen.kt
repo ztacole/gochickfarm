@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.zetta.gochickfarm.ui.screen.animal.DetailRow
+import com.zetta.gochickfarm.ui.screen.animal.detail.DetailRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

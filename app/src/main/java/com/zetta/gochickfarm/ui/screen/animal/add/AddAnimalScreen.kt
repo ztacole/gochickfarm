@@ -1,4 +1,4 @@
-package com.zetta.gochickfarm.ui.screen.animal
+package com.zetta.gochickfarm.ui.screen.animal.add
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.CalendarToday
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,7 +15,6 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,23 +25,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateAnimalStatusScreen(
-    animalId: String,
+fun AddAnimalScreen(
     onNavigateBack: () -> Unit,
     onSaveSuccess: () -> Unit
 ) {
-    var selectedStatus by remember { mutableStateOf("") }
-    var notes by remember { mutableStateOf("") }
+    var tag by remember { mutableStateOf("") }
+    var species by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var weight by remember { mutableStateOf("") }
+    var birthDate by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ubah Status Hewan") },
+                title = { Text("Tambah Hewan") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
@@ -58,10 +59,11 @@ fun UpdateAnimalStatusScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    text = "Hewan: $animalId",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                OutlinedTextField(
+                    value = tag,
+                    onValueChange = { tag = it },
+                    label = { Text("Tag/ID Hewan") },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
@@ -72,10 +74,10 @@ fun UpdateAnimalStatusScreen(
                     onExpandedChange = { expanded = it }
                 ) {
                     OutlinedTextField(
-                        value = selectedStatus,
+                        value = species,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Status") },
+                        label = { Text("Spesies") },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
@@ -87,11 +89,46 @@ fun UpdateAnimalStatusScreen(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        listOf("Hidup", "Mati", "Terjual", "Hilang").forEach { status ->
+                        listOf("Kambing", "Ayam", "Sapi", "Domba").forEach { s ->
                             DropdownMenuItem(
-                                text = { Text(status) },
+                                text = { Text(s) },
                                 onClick = {
-                                    selectedStatus = status
+                                    species = s
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = gender,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Jenis Kelamin") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        listOf("Jantan", "Betina").forEach { g ->
+                            DropdownMenuItem(
+                                text = { Text(g) },
+                                onClick = {
+                                    gender = g
                                     expanded = false
                                 }
                             )
@@ -102,18 +139,30 @@ fun UpdateAnimalStatusScreen(
 
             item {
                 OutlinedTextField(
-                    value = notes,
-                    onValueChange = { notes = it },
-                    label = { Text("Catatan (penyebab)") },
+                    value = weight,
+                    onValueChange = { weight = it },
+                    label = { Text("Berat (kg)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            item {
+                OutlinedTextField(
+                    value = birthDate,
+                    onValueChange = { birthDate = it },
+                    label = { Text("Tanggal Lahir") },
+                    placeholder = { Text("DD/MM/YYYY") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3
+                    trailingIcon = {
+                        Icon(Icons.Rounded.CalendarToday, contentDescription = null)
+                    }
                 )
             }
 
             item {
                 Button(
                     onClick = {
-                        // TODO: Update status
+                        // TODO: Save animal
                         onSaveSuccess()
                     },
                     modifier = Modifier.fillMaxWidth()

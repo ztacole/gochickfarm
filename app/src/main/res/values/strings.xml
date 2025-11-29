@@ -3,6 +3,11 @@
 
     <!-- Common -->
     <string name="text_ok">OK</string>
+    <string name="text_chicken">Chicken</string>
+    <string name="text_goat">Goat</string>
+    <string name="text_male">Male</string>
+    <string name="text_female">Female</string>
+    <string name="text_alive">Alive</string>
 
     <!-- Auth -->
     <string name="auth_text_email">Email</string>
@@ -15,4 +20,15 @@
     <string name="auth_input_required">This field cannot be empty</string>
     <string name="auth_failed_title">Login Failed</string>
 
+    <!-- Dashboard -->
+    <string name="dashboard_text_feeding">Feeding</string>
+    <string name="dashboard_text_breeding">Breeding</string>
+    <string name="dashboard_text_transaction">Transaction</string>
+    <string name="dashboard_text_today_summary">Today\'s Summary</string>
+    <string name="dashboard_text_chicken_count">Chicken Count</string>
+    <string name="dashboard_text_goat_count">Goat Count</string>
+    <string name="dashboard_text_sold_chicken">Sold Chicken:</string>
+    <string name="dashboard_text_sold_goat">Sold Goat:</string>
+    <string name="dashboard_text_total_income">Total Income</string>
+    <string name="dashboard_text_category">Category</string>
 </resources>

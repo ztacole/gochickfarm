@@ -9,7 +9,9 @@ import com.zetta.gochickfarm.data.model.Summary
 import com.zetta.gochickfarm.data.repository.DashboardRepository
 import kotlinx.coroutines.launch
 
-class DashboardViewModel(private val repository: DashboardRepository) : ViewModel() {
+class DashboardViewModel(
+    private val repository: DashboardRepository
+) : ViewModel() {
     var summaryUiState by mutableStateOf(SummaryUiState())
         private set
 
@@ -21,8 +23,8 @@ class DashboardViewModel(private val repository: DashboardRepository) : ViewMode
         viewModelScope.launch {
             summaryUiState = summaryUiState.copy(isLoading = true)
             repository.getSummary()
-                .onSuccess { summaryUiState.copy(summary = it, isLoading = false) }
-                .onFailure { summaryUiState.copy(errorMessage = it.message, isLoading = false) }
+                .onSuccess { summaryUiState = summaryUiState.copy(summary = it, isLoading = false) }
+                .onFailure { summaryUiState = summaryUiState.copy(errorMessage = it.message, isLoading = false) }
         }
     }
 

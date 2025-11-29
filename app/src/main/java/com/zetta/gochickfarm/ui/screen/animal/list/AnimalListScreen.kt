@@ -1,4 +1,4 @@
-package com.zetta.gochickfarm.ui.screen.animal
+package com.zetta.gochickfarm.ui.screen.animal.list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
