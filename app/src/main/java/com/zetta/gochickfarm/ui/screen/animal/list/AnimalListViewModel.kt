@@ -3,6 +3,7 @@ package com.zetta.gochickfarm.ui.screen.animal.list
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zetta.gochickfarm.data.model.Animal
@@ -16,14 +17,20 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
-class AnimalListViewModel(private val repository: AnimalRepository): ViewModel() {
+class AnimalListViewModel(
+    private val repository: AnimalRepository,
+    savedStateHandle: SavedStateHandle
+): ViewModel() {
     var uiState by mutableStateOf(AnimalListUiState())
         private set
+
+    private val speciesFilter = savedStateHandle.get<String>("species") ?: "Semua"
 
     private var currentPage = 1
     private val searchQueryFlow = MutableStateFlow(uiState.search)
 
     init {
+        uiState = uiState.copy(species = if (speciesFilter == "{species}") "Semua" else speciesFilter)
         fetchAnimals()
 
         viewModelScope.launch {

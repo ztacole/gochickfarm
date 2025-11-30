@@ -1,4 +1,4 @@
-package com.zetta.gochickfarm.ui.screen.transaction
+package com.zetta.gochickfarm.ui.screen.transaction.add
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

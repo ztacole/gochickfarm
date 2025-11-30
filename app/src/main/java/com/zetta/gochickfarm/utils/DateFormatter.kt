@@ -12,7 +12,7 @@ fun formatDateToYear(input: String): String {
 }
 
 fun formatDateToDateTimeMinute(input: String): String {
-    val dateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+    val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
     val date = dateFormatter.parse(input)
 
     val dateTimeFormatter = SimpleDateFormat("yyyy MMM dd - HH:mm", Locale.getDefault())

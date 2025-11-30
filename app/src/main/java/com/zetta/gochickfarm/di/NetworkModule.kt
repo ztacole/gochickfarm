@@ -4,6 +4,7 @@ import com.zetta.gochickfarm.data.remote.AnimalService
 import com.zetta.gochickfarm.data.remote.AuthService
 import com.zetta.gochickfarm.data.remote.DashboardService
 import com.zetta.gochickfarm.data.remote.FeedService
+import com.zetta.gochickfarm.data.remote.TransactionService
 import com.zetta.gochickfarm.network.ApiClient
 import com.zetta.gochickfarm.network.SessionManager
 import kotlinx.coroutines.flow.firstOrNull
@@ -17,4 +18,5 @@ val networkModule = module {
     single { AuthService(get()) }
     single { AnimalService(get()) }
     single { FeedService(get()) }
+    single { TransactionService(get()) }
 }

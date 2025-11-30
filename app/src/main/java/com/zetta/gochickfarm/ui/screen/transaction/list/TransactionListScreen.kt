@@ -1,6 +1,5 @@
-package com.zetta.gochickfarm.ui.screen.animal.list
+package com.zetta.gochickfarm.ui.screen.transaction.list
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
@@ -42,27 +42,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.zetta.gochickfarm.R
 import com.zetta.gochickfarm.ui.components.AppDropdown
-import com.zetta.gochickfarm.ui.components.AppTextField
+import com.zetta.gochickfarm.utils.formatDateToDateTimeMinute
+import com.zetta.gochickfarm.utils.formatRupiah
 import com.zetta.gochickfarm.utils.shimmerLoading
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnimalListScreen(
+fun TransactionListScreen(
     onNavigateToDetail: (Int) -> Unit,
-    viewModel: AnimalListViewModel = koinViewModel()
+    viewModel: TransactionListViewModel = koinViewModel()
 ) {
     val uiState = viewModel.uiState
     val lazyListState = rememberLazyListState()
 
-    val statusList = listOf("Hidup", "Mati", "Terjual")
-    val speciesList = listOf("Semua", "Kambing", "Ayam")
+    val typeList = listOf("Semua", "Pemasukan", "Pengeluaran")
 
     val shouldFetchNextPage: Boolean by remember {
         derivedStateOf {
@@ -74,13 +74,13 @@ fun AnimalListScreen(
 
     LaunchedEffect(shouldFetchNextPage) {
         if (shouldFetchNextPage)
-            viewModel.loadMoreAnimals()
+            viewModel.loadMoreTransactions()
     }
 
     Surface {
         PullToRefreshBox(
             uiState.isRefreshing,
-            onRefresh = { viewModel.refreshAnimals() },
+            onRefresh = { viewModel.refreshTransactions() },
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
@@ -105,29 +105,12 @@ fun AnimalListScreen(
                                 .padding(top = 16.dp)
                         )
                         Spacer(modifier = Modifier.height(24.dp))
-                        AppTextField(
-                            value = uiState.search ?: "",
-                            onValueChange = { viewModel.updateSearchQuery(it) },
-                            placeholder = "Find animal by tag",
-                            modifier = Modifier.fillMaxWidth(),
-                            trailingIcon = {
-                                Icon(Icons.Rounded.Search, contentDescription = null)
-                            },
-                            outlineMode = true
-                        )
-                        Spacer(Modifier.height(8.dp))
                         AppDropdown(
-                            placeholder = "Filter by species",
-                            items = speciesList,
-                            selectedItem = uiState.species,
-                            onItemSelected = { viewModel.updateSpeciesFilter(it) },
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        AppDropdown(
-                            placeholder = "Filter by status",
-                            items = statusList,
-                            selectedItem = uiState.status,
-                            onItemSelected = { viewModel.updateStatusFilter(it) },
+                            placeholder = "Filter by type",
+                            items = typeList,
+                            selectedItem = uiState.type,
+                            onItemSelected = { viewModel.updateTypeFilter(it) },
+                            modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -145,7 +128,7 @@ fun AnimalListScreen(
                             )
                         }
                     }
-                    uiState.animals.isEmpty() -> {
+                    uiState.transactions.isEmpty() -> {
                         item {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -153,7 +136,7 @@ fun AnimalListScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                             ) {
                                 Text(
-                                    text = "No animal found",
+                                    text = "No transaction found",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Gray
@@ -185,14 +168,13 @@ fun AnimalListScreen(
                                 fontWeight = FontWeight.Bold,
                             )
                         }
-                        items(uiState.animals) { animal ->
-                            AnimalCard(
-                                tag = animal.tag,
-                                gender = animal.sex,
-                                weight = animal.weight,
-                                status = animal.status,
-                                species = animal.species,
-                                onClick = { onNavigateToDetail(animal.id) }
+                        items(uiState.transactions) { transaction ->
+                            TransactionCard(
+                                description = transaction.description,
+                                amount = transaction.amount,
+                                type = transaction.type,
+                                date = transaction.date,
+                                onClick = { onNavigateToDetail(transaction.id) }
                             )
                         }
 
@@ -231,12 +213,11 @@ fun AnimalListScreen(
 }
 
 @Composable
-fun AnimalCard(
-    tag: String,
-    gender: String,
-    weight: Double,
-    status: String,
-    species: String,
+fun TransactionCard(
+    description: String,
+    amount: Int,
+    type: String,
+    date: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -255,37 +236,51 @@ fun AnimalCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(
-                painter = painterResource(if (species == "Ayam") R.drawable.ic_chicken else R.drawable.ic_goat),
+            Icon(
+                imageVector = if (type == "Pengeluaran") Icons.Default.Payments else Icons.Default.MonetizationOn,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "TAG: $tag",
+                    text = description,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = "$gender | $weight",
+                    text = formatRupiah(amount),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (type == "Pemasukan")
+                        MaterialTheme.colorScheme.primary
+                    else
+                        MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = formatDateToDateTimeMinute(date),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             AssistChip(
                 onClick = { },
-                label = { Text(status) },
+                label = { Text(type) },
                 border = null,
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = when (status) {
-                        "Hidup" -> MaterialTheme.colorScheme.primaryContainer
-                        "Terjual" -> MaterialTheme.colorScheme.tertiaryContainer
+                    containerColor = when (type) {
+                        "Pemasukan" -> MaterialTheme.colorScheme.primaryContainer
                         else -> MaterialTheme.colorScheme.errorContainer
                     },
-                    labelColor = when (status) {
-                        "Hidup" -> MaterialTheme.colorScheme.onPrimaryContainer
-                        "Terjual" -> MaterialTheme.colorScheme.onTertiaryContainer
+                    labelColor = when (type) {
+                        "Pemasukan" -> MaterialTheme.colorScheme.onPrimaryContainer
                         else -> MaterialTheme.colorScheme.onErrorContainer
                     }
                 )

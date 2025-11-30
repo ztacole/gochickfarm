@@ -29,6 +29,7 @@ import com.zetta.gochickfarm.ui.screen.activity.ProfileScreen
 import com.zetta.gochickfarm.ui.screen.animal.add.AddAnimalScreen
 import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailScreen
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListScreen
+import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListViewModel
 import com.zetta.gochickfarm.ui.screen.animal.update.UpdateAnimalStatusScreen
 import com.zetta.gochickfarm.ui.screen.auth.Login
 import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
@@ -36,10 +37,11 @@ import com.zetta.gochickfarm.ui.screen.feed.add.AddFeedScreen
 import com.zetta.gochickfarm.ui.screen.feed.list.FeedListScreen
 import com.zetta.gochickfarm.ui.screen.feeding.AddBreedingLogScreen
 import com.zetta.gochickfarm.ui.screen.feeding.AddFeedingLogScreen
-import com.zetta.gochickfarm.ui.screen.transaction.AddTransactionDetailScreen
-import com.zetta.gochickfarm.ui.screen.transaction.AddTransactionScreen
-import com.zetta.gochickfarm.ui.screen.transaction.TransactionDetailScreen
-import com.zetta.gochickfarm.ui.screen.transaction.TransactionListScreen
+import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionDetailScreen
+import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionScreen
+import com.zetta.gochickfarm.ui.screen.transaction.detail.TransactionDetailScreen
+import com.zetta.gochickfarm.ui.screen.transaction.list.TransactionListScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation(
@@ -85,8 +87,6 @@ fun AppNavigation(
                 BottomNavigationBar(
                     onNavigate = {
                         navController.navigate(it) {
-                            if (it == Screen.AnimalList.route)
-                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("category")
                             popUpTo(Screen.Dashboard.route) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -114,7 +114,7 @@ fun AppNavigation(
             modifier = modifierPadding,
             enterTransition = {
                 if (showBottomBar) EnterTransition.None
-                else slideInHorizontally(animationSpec = tween(400, easing = LinearEasing), initialOffsetX = { it })
+                else slideInHorizontally(animationSpec = tween(300, easing = LinearEasing), initialOffsetX = { it })
             },
             exitTransition = { ExitTransition.None }
         ) {
@@ -141,31 +141,39 @@ fun AppNavigation(
                     onNavigateToTransaction = {
                         navController.navigate(Screen.AddTransaction.route)
                     },
-                    onNavigateToGoatSearch = { category ->
-                        navController.currentBackStackEntry?.savedStateHandle?.set("category", category)
-                        navController.navigate(Screen.AnimalList.route) {
+                    onNavigateToGoatSearch = { species ->
+//                        navController.currentBackStackEntry?.savedStateHandle?.set("category", category)
+                        navController.navigate(Screen.AnimalList.withSpecies(species)) {
                             popUpTo(Screen.Dashboard.route) { saveState = true }
                             launchSingleTop = true
-                            restoreState = true
                         }
                     },
-                    onNavigateToChickenSearch = { category ->
-                        navController.currentBackStackEntry?.savedStateHandle?.set("category", category)
-                        navController.navigate(Screen.AnimalList.route) {
-                            popUpTo(Screen.Dashboard.route) { saveState = true }
+                    onNavigateToChickenSearch = { species ->
+                        navController.navigate(Screen.AnimalList.withSpecies(species)) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
                             launchSingleTop = true
-                            restoreState = true
                         }
                     }
                 )
             }
 
             // Animal List Screen
-            composable(Screen.AnimalList.route) {
+            composable(
+                Screen.AnimalList.route,
+                arguments = listOf(
+                    navArgument("species") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) {
+                val viewModel: AnimalListViewModel = koinViewModel()
                 AnimalListScreen(
                     onNavigateToDetail = { animalId ->
                         navController.navigate(Screen.AnimalDetail.createRoute(animalId))
-                    }
+                    },
+                    viewModel = viewModel
                 )
             }
 
@@ -257,9 +265,6 @@ fun AppNavigation(
                 TransactionListScreen(
                     onNavigateToDetail = { transactionId ->
                         navController.navigate(Screen.TransactionDetail.createRoute(transactionId))
-                    },
-                    onNavigateToAddTransaction = {
-                        navController.navigate(Screen.AddTransaction.route)
                     }
                 )
             }

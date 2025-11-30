@@ -266,7 +266,7 @@ private fun CategorySection(
                     )
                 }
                 IconButton(
-                    onClick = { onNavigateToChickenSearch("Chicken") },
+                    onClick = { onNavigateToChickenSearch("Ayam") },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -319,7 +319,7 @@ private fun CategorySection(
                     )
                 }
                 IconButton(
-                    onClick = { onNavigateToGoatSearch("Goat") },
+                    onClick = { onNavigateToGoatSearch("Kambing") },
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
