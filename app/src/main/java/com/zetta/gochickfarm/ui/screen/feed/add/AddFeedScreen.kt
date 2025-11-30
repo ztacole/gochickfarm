@@ -1,4 +1,4 @@
-package com.zetta.gochickfarm.ui.screen.feed
+package com.zetta.gochickfarm.ui.screen.feed.add
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize

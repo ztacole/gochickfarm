@@ -1,12 +1,12 @@
-package com.zetta.gochickfarm.ui.screen.animal.list
+package com.zetta.gochickfarm.ui.screen.feed.list
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zetta.gochickfarm.data.model.Animal
-import com.zetta.gochickfarm.data.repository.AnimalRepository
+import com.zetta.gochickfarm.data.model.Feed
+import com.zetta.gochickfarm.data.repository.FeedRepository
 import com.zetta.gochickfarm.utils.Constants
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,15 +16,15 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 @OptIn(FlowPreview::class)
-class AnimalListViewModel(private val repository: AnimalRepository): ViewModel() {
-    var uiState by mutableStateOf(AnimalListUiState())
+class FeedListViewModel(private val repository: FeedRepository): ViewModel() {
+    var uiState by mutableStateOf(FeedListUiState())
         private set
 
     private var currentPage = 1
     private val searchQueryFlow = MutableStateFlow(uiState.search)
 
     init {
-        fetchAnimals()
+        fetchFeeds()
 
         viewModelScope.launch {
             searchQueryFlow
@@ -32,31 +32,30 @@ class AnimalListViewModel(private val repository: AnimalRepository): ViewModel()
                 .debounce(500)
                 .distinctUntilChanged()
                 .collect { query ->
-                    refreshAnimals()
+                    refreshFeeds()
                 }
         }
     }
 
-    private fun fetchAnimals() {
+    private fun fetchFeeds() {
         if (uiState.isLoading || uiState.isLoadingMore || uiState.endReached) return
         uiState = uiState.copy(isLoadingMore = true)
+
         viewModelScope.launch {
             if (currentPage == 1) {
                 uiState = uiState.copy(isLoading = true)
             }
 
-            repository.getAnimals(
+            repository.getFeeds(
                 currentPage,
                 Constants.PAGINATION_LIMIT,
-                uiState.search,
-                uiState.status,
-                if (uiState.species != "Semua") uiState.species else null
+                uiState.search
             ).onSuccess {
-                val updatedAnimals = if (currentPage == 1) it.data else uiState.animals + it.data
+                val updatedFeeds = if (currentPage == 1) it.data else uiState.feeds + it.data
                 currentPage = it.meta.currentPage
 
                 uiState = uiState.copy(
-                    animals = updatedAnimals,
+                    feeds = updatedFeeds,
                     isLoading = false,
                     isLoadingMore = false,
                     isRefreshing = false,
@@ -75,41 +74,27 @@ class AnimalListViewModel(private val repository: AnimalRepository): ViewModel()
         }
     }
 
-    fun refreshAnimals() {
+    fun refreshFeeds() {
         currentPage = 1
         uiState = uiState.copy(
-            animals = emptyList(),
+            feeds = emptyList(),
             isRefreshing = true,
             endReached = false
         )
-        fetchAnimals()
+        fetchFeeds()
     }
 
-    fun loadMoreAnimals() {
-        fetchAnimals()
-    }
+    fun loadMoreFeeds() = fetchFeeds()
 
     fun updateSearchQuery(query: String) {
         uiState = uiState.copy(search = query.ifEmpty { null })
         searchQueryFlow.value = uiState.search
     }
 
-    fun updateStatusFilter(status: String) {
-        uiState = uiState.copy(status = status)
-        refreshAnimals()
-    }
-
-    fun updateSpeciesFilter(species: String) {
-        uiState = uiState.copy(species = species)
-        refreshAnimals()
-    }
-
-    data class AnimalListUiState(
+    data class FeedListUiState(
+        val feeds: List<Feed> = emptyList(),
         val isLoading: Boolean = false,
-        val animals: List<Animal> = emptyList(),
         val search: String? = null,
-        val status: String = "Hidup",
-        val species: String = "Semua",
         val isLoadingMore: Boolean = false,
         val isRefreshing: Boolean = false,
         val endReached: Boolean = false,
