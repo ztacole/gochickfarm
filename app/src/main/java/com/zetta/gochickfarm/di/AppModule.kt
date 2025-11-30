@@ -1,5 +1,6 @@
 package com.zetta.gochickfarm.di
 
+import com.zetta.gochickfarm.data.repository.AnimalRepository
 import com.zetta.gochickfarm.data.repository.AuthRepository
 import com.zetta.gochickfarm.data.repository.DashboardRepository
 import com.zetta.gochickfarm.utils.ResourceProvider
@@ -10,4 +11,5 @@ val appModule = module {
 
     single { DashboardRepository(get()) }
     single { AuthRepository(get(), get()) }
+    single { AnimalRepository(get()) }
 }

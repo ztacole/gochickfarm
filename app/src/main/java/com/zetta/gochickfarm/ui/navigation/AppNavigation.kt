@@ -2,8 +2,15 @@ package com.zetta.gochickfarm.ui.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,8 +32,8 @@ import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListScreen
 import com.zetta.gochickfarm.ui.screen.animal.update.UpdateAnimalStatusScreen
 import com.zetta.gochickfarm.ui.screen.auth.Login
 import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
-import com.zetta.gochickfarm.ui.screen.feed.AddFeedScreen
-import com.zetta.gochickfarm.ui.screen.feed.FeedListScreen
+import com.zetta.gochickfarm.ui.screen.feed.add.AddFeedScreen
+import com.zetta.gochickfarm.ui.screen.feed.list.FeedListScreen
 import com.zetta.gochickfarm.ui.screen.feeding.AddBreedingLogScreen
 import com.zetta.gochickfarm.ui.screen.feeding.AddFeedingLogScreen
 import com.zetta.gochickfarm.ui.screen.transaction.AddTransactionDetailScreen
@@ -48,11 +55,29 @@ fun AppNavigation(
         Screen.Dashboard.route,
         Screen.AnimalList.route,
         Screen.FeedList.route,
-        Screen.TransactionList.route,
-//        Screen.Profile.route
+        Screen.TransactionList.route
+    )
+
+    val fabScreens = listOf(
+        FabItem(
+            route = Screen.AnimalList.route,
+            label = "Add Animal",
+            onClick = { navController.navigate(Screen.AddAnimal.route) }
+        ),
+        FabItem(
+            route = Screen.FeedList.route,
+            label = "Add Feed",
+            onClick = { navController.navigate(Screen.AddFeed.route) }
+        ),
+        FabItem(
+            route = Screen.TransactionList.route,
+            label = "Add Transaction",
+            onClick = { navController.navigate(Screen.AddTransaction.route) }
+        )
     )
 
     val showBottomBar = currentDestination?.route in bottomNavScreens
+    val showFab = currentDestination?.route in fabScreens.map { it.route }
 
     Scaffold(
         bottomBar = {
@@ -70,20 +95,27 @@ fun AppNavigation(
                     currentDestination = currentDestination,
                 )
             }
+        },
+        floatingActionButton = {
+            if (showFab) {
+                val fabItem = fabScreens.find { it.route == currentDestination?.route }
+                FloatingActionButton(
+                    onClick = fabItem?.onClick ?: {}
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = fabItem?.label)
+                }
+            }
         }
     ) { innerPadding ->
-        val modifierPadding = modifier.padding(
-            if (currentDestination?.route != null && currentDestination.route != Screen.Dashboard.route) {
-                PaddingValues(start = innerPadding.calculateLeftPadding(LayoutDirection.Ltr), end = innerPadding.calculateRightPadding(LayoutDirection.Ltr), top = 0.dp, bottom = innerPadding.calculateBottomPadding())
-            } else {
-                PaddingValues(start = innerPadding.calculateLeftPadding(LayoutDirection.Ltr), end = innerPadding.calculateRightPadding(LayoutDirection.Ltr), top = 0.dp, bottom = innerPadding.calculateBottomPadding())
-            }
-        )
+        val modifierPadding = modifier.padding(PaddingValues(start = innerPadding.calculateLeftPadding(LayoutDirection.Ltr), end = innerPadding.calculateRightPadding(LayoutDirection.Ltr), top = 0.dp, bottom = innerPadding.calculateBottomPadding()))
         NavHost(
             navController = navController,
             startDestination = startDestination.route,
             modifier = modifierPadding,
-            enterTransition = { EnterTransition.None },
+            enterTransition = {
+                if (showBottomBar) EnterTransition.None
+                else slideInHorizontally(animationSpec = tween(400, easing = LinearEasing), initialOffsetX = { it })
+            },
             exitTransition = { ExitTransition.None }
         ) {
             // Login Screen
@@ -133,9 +165,6 @@ fun AppNavigation(
                 AnimalListScreen(
                     onNavigateToDetail = { animalId ->
                         navController.navigate(Screen.AnimalDetail.createRoute(animalId))
-                    },
-                    onNavigateToAddAnimal = {
-                        navController.navigate(Screen.AddAnimal.route)
                     }
                 )
             }
@@ -212,11 +241,7 @@ fun AppNavigation(
 
             // Feed List Screen
             composable(Screen.FeedList.route) {
-                FeedListScreen(
-                    onNavigateToAddFeed = {
-                        navController.navigate(Screen.AddFeed.route)
-                    }
-                )
+                FeedListScreen()
             }
 
             // Add Feed Screen
@@ -312,3 +337,9 @@ fun AppNavigation(
         }
     }
 }
+
+data class FabItem(
+    val route: String,
+    val label: String,
+    val onClick: () -> Unit
+)

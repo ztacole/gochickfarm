@@ -1,5 +1,6 @@
 package com.zetta.gochickfarm.di
 
+import com.zetta.gochickfarm.data.remote.AnimalService
 import com.zetta.gochickfarm.data.remote.AuthService
 import com.zetta.gochickfarm.data.remote.DashboardService
 import com.zetta.gochickfarm.network.ApiClient
@@ -13,4 +14,5 @@ val networkModule = module {
 
     single { DashboardService(get()) }
     single { AuthService(get()) }
+    single { AnimalService(get()) }
 }

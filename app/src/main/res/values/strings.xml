@@ -8,6 +8,7 @@
     <string name="text_male">Male</string>
     <string name="text_female">Female</string>
     <string name="text_alive">Alive</string>
+    <string name="text_end_reached">No more data</string>
 
     <!-- Auth -->
     <string name="auth_text_email">Email</string>
