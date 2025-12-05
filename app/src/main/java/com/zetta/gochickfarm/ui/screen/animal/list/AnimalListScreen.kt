@@ -268,7 +268,7 @@ fun AnimalCard(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "$gender | $weight",
+                    text = "$gender | $weight Kg",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

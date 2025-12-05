@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Feed(
     val id: Int,
     val name: String,
-    val quantity: Int,
+    val quantity: Double,
     @SerialName("price_per_unit")
     val price: Int,
 )

@@ -11,6 +11,15 @@ fun formatDateToYear(input: String): String {
     return yearFormatter.format(date!!)
 }
 
+fun formatDate(input: String): String {
+    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val date = dateFormatter.parse(input)
+
+    val dateTimeFormatter = SimpleDateFormat("yyyy MMM dd", Locale.getDefault())
+    return dateTimeFormatter.format(date!!)
+}
+
+
 fun formatDateToDateTimeMinute(input: String): String {
     val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
     val date = dateFormatter.parse(input)

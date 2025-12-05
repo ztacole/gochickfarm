@@ -2,7 +2,6 @@ package com.zetta.gochickfarm.ui.screen.feed.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.rounded.Search
@@ -208,7 +206,7 @@ fun FeedListScreen(
 }
 
 @Composable
-fun FeedCard(name: String, stock: Int, price: Int) {
+fun FeedCard(name: String, stock: Double, price: Int) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

@@ -11,10 +11,10 @@ sealed class Screen(val route: String) {
     }
     object AddAnimal : Screen("add_animal")
     object UpdateAnimalStatus : Screen("update_status/{animalId}") {
-        fun createRoute(animalId: String) = "update_status/$animalId"
+        fun createRoute(animalId: Int) = "update_status/$animalId"
     }
     object AddFeedingLog : Screen("add_feeding_log/{animalId}") {
-        fun createRoute(animalId: String = "") = if (animalId.isEmpty()) "add_feeding_log/" else "add_feeding_log/$animalId"
+        fun createRoute(animalId: Int) = if (animalId == 0) "add_feeding_log/" else "add_feeding_log/$animalId"
     }
     object AddBreedingLog : Screen("add_breeding_log")
     object FeedList : Screen("feed_list")

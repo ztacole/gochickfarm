@@ -2,9 +2,11 @@ package com.zetta.gochickfarm.ui.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -28,6 +30,7 @@ import com.zetta.gochickfarm.ui.screen.activity.OfflineSyncScreen
 import com.zetta.gochickfarm.ui.screen.activity.ProfileScreen
 import com.zetta.gochickfarm.ui.screen.animal.add.AddAnimalScreen
 import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailScreen
+import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailViewModel
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListScreen
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListViewModel
 import com.zetta.gochickfarm.ui.screen.animal.update.UpdateAnimalStatusScreen
@@ -113,10 +116,17 @@ fun AppNavigation(
             startDestination = startDestination.route,
             modifier = modifierPadding,
             enterTransition = {
-                if (showBottomBar) EnterTransition.None
-                else slideInHorizontally(animationSpec = tween(300, easing = LinearEasing), initialOffsetX = { it })
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn(animationSpec = tween(300))
             },
-            exitTransition = { ExitTransition.None }
+            exitTransition = {
+                fadeOut(animationSpec = tween(200))
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -it }) + fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it }) + fadeOut(animationSpec = tween(200))
+            }
         ) {
             // Login Screen
             composable(Screen.Login.route) {
@@ -130,10 +140,14 @@ fun AppNavigation(
             }
 
             // Dashboard Screen
-            composable(Screen.Dashboard.route) {
+            composable(
+                Screen.Dashboard.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
                 Dashboard(
                     onNavigateToAddFeeding = {
-                        navController.navigate(Screen.AddFeedingLog.createRoute())
+                        navController.navigate(Screen.AddFeedingLog.route)
                     },
                     onNavigateToBreeding = {
                         navController.navigate(Screen.AddBreedingLog.route)
@@ -166,7 +180,9 @@ fun AppNavigation(
                         nullable = true
                         defaultValue = null
                     }
-                )
+                ),
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
             ) {
                 val viewModel: AnimalListViewModel = koinViewModel()
                 AnimalListScreen(
@@ -181,19 +197,16 @@ fun AppNavigation(
             composable(
                 route = Screen.AnimalDetail.route,
                 arguments = listOf(
-                    navArgument("animalId") { type = NavType.StringType }
+                    navArgument("animalId") { type = NavType.IntType }
                 )
             ) { backStackEntry ->
-                val animalId = backStackEntry.arguments?.getString("animalId") ?: ""
+                val viewModel: AnimalDetailViewModel = koinViewModel()
                 AnimalDetailScreen(
-                    animalId = animalId,
                     onNavigateBack = { navController.navigateUp() },
-                    onNavigateToAddFeeding = {
+                    onNavigateToAddFeeding = { animalId ->
                         navController.navigate(Screen.AddFeedingLog.createRoute(animalId))
                     },
-                    onNavigateToUpdateStatus = {
-                        navController.navigate(Screen.UpdateAnimalStatus.createRoute(animalId))
-                    }
+                    viewModel = viewModel
                 )
             }
 
@@ -248,7 +261,11 @@ fun AppNavigation(
             }
 
             // Feed List Screen
-            composable(Screen.FeedList.route) {
+            composable(
+                Screen.FeedList.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
                 FeedListScreen()
             }
 
@@ -261,7 +278,11 @@ fun AppNavigation(
             }
 
             // Transaction List Screen
-            composable(Screen.TransactionList.route) {
+            composable(
+                Screen.TransactionList.route,
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None }
+            ) {
                 TransactionListScreen(
                     onNavigateToDetail = { transactionId ->
                         navController.navigate(Screen.TransactionDetail.createRoute(transactionId))

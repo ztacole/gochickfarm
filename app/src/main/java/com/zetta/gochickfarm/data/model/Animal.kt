@@ -13,3 +13,8 @@ data class Animal(
     val birthdate: String,
     val status: String
 )
+
+@Serializable
+data class UpdateStatusRequest(
+    val status: String
+)

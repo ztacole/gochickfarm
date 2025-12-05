@@ -10,13 +10,17 @@ import safeApiCall
 class TransactionService(private val client: HttpClient) {
     companion object {
         private const val BASE_ROUTE = "transactions"
+
+        private const val PAGE_PARAM = "page"
+        private const val LIMIT_PARAM = "limit"
+        private const val TYPE_PARAM = "type"
     }
 
     suspend fun getTransactions(page: Int, limit: Int, type: String? = null): Result<MetaResponse<List<Transaction>>> = safeApiCall {
         client.get(BASE_ROUTE) {
-            parameter("page", page)
-            parameter("limit", limit)
-            if (type != null) parameter("type", type)
+            parameter(PAGE_PARAM, page)
+            parameter(LIMIT_PARAM, limit)
+            if (type != null) parameter(TYPE_PARAM, type)
         }
     }
 }
