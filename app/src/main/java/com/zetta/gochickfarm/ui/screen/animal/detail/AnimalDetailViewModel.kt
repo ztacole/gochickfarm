@@ -41,6 +41,16 @@ class AnimalDetailViewModel(
         else fetchBreedingLogs()
     }
 
+    fun loadMoreSelectedTab() {
+        if (animalUiState.selectedTab == 0) loadMoreFeedingLogs()
+        else loadMoreBreedingLogs()
+    }
+
+    fun refreshSelectedTab() {
+        if (animalUiState.selectedTab == 0) refreshFeedingLogs()
+        else refreshBreedingLogs()
+    }
+
     private fun fetchAnimal() {
         viewModelScope.launch {
             animalUiState = animalUiState.copy(isLoading = true)
@@ -136,18 +146,14 @@ class AnimalDetailViewModel(
                 statusChangeUiState = statusChangeUiState.copy(
                     isLoading = false,
                     isSuccess = true,
-                    showDialog = true,
-                    message = "Status updated successfully",
-                    showBottomSheet = false
+                    message = "Status updated successfully"
                 )
                 animalUiState = animalUiState.copy(animal = animalUiState.animal?.copy(status = status))
             }.onFailure {
                 statusChangeUiState = statusChangeUiState.copy(
                     message = it.message,
                     isLoading = false,
-                    isSuccess = false,
-                    showDialog = true,
-                    showBottomSheet = false
+                    isSuccess = false
                 )
             }
         }
@@ -161,15 +167,11 @@ class AnimalDetailViewModel(
         statusChangeUiState = statusChangeUiState.copy(showBottomSheet = false)
     }
 
-    fun dismissStatusChangeDialog() {
-        statusChangeUiState = statusChangeUiState.copy(showDialog = false, status = "Hidup")
-    }
-
     fun updateStatusInputState(status: String) {
         statusChangeUiState = statusChangeUiState.copy(status = status)
     }
 
-    fun refreshFeedingLogs() {
+    private fun refreshFeedingLogs() {
         currentFeedingLogPage = 1
         feedingLogsUiState = feedingLogsUiState.copy(
             feedingLogs = emptyList(),
@@ -179,7 +181,7 @@ class AnimalDetailViewModel(
         fetchFeedingLogs()
     }
 
-    fun refreshBreedingLogs() {
+    private fun refreshBreedingLogs() {
         currentBreedingLogPage = 1
         breedingLogsUiState = breedingLogsUiState.copy(
             breedingLogs = emptyList(),
@@ -189,12 +191,12 @@ class AnimalDetailViewModel(
         fetchBreedingLogs()
     }
 
-    fun loadMoreFeedingLogs() = {
+    private fun loadMoreFeedingLogs() {
         if (!feedingLogsUiState.endReached) currentFeedingLogPage++
         fetchFeedingLogs()
     }
 
-    fun loadMoreBreedingLogs() = {
+    private fun loadMoreBreedingLogs() {
         if (!breedingLogsUiState.endReached) currentBreedingLogPage++
         fetchBreedingLogs()
     }
@@ -235,6 +237,5 @@ data class StatusChangeUiState(
     val isLoading: Boolean = false,
     val message: String? = null,
     val isSuccess: Boolean = false,
-    val showDialog: Boolean = false,
     val showBottomSheet: Boolean = false
 )

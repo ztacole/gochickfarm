@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -35,9 +36,13 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,6 +82,19 @@ fun AnimalDetailScreen(
 
     val scope = rememberCoroutineScope()
     val changeStatusSheetState = rememberModalBottomSheetState()
+    val lazyListState = rememberLazyListState()
+
+    val shouldFetchMore by remember {
+        derivedStateOf {
+            val lastVisibleItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull() ?: return@derivedStateOf false
+            val totalItems = lazyListState.layoutInfo.totalItemsCount - 4
+            lastVisibleItem.index >= totalItems
+        }
+    }
+
+    LaunchedEffect(shouldFetchMore) {
+        if (shouldFetchMore) viewModel.loadMoreSelectedTab()
+    }
 
     val statusColor = when (animalUiState.animal?.status) {
         "Hidup" -> MaterialTheme.colorScheme.primaryContainer
@@ -206,179 +224,185 @@ fun AnimalDetailScreen(
                 )
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            PullToRefreshBox(
+                isRefreshing = if (animalUiState.selectedTab == 0)
+                    feedingLogsUiState.isRefreshing else breedingLogsUiState.isRefreshing,
+                onRefresh = { viewModel.refreshSelectedTab() },
+                modifier = Modifier.weight(1f)
             ) {
-                when(animalUiState.selectedTab) {
-                    0 -> {
-                        when {
-                            feedingLogsUiState.isLoading -> {
-                                items(4) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(64.dp)
-                                            .clip(MaterialTheme.shapes.small)
-                                            .shimmerLoading()
-                                    )
-                                }
-                            }
-                            feedingLogsUiState.feedingLogs.isEmpty() -> {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Text(
-                                            text = "No feeding logs found",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-                            }
-                            feedingLogsUiState.errorMessage != null -> {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = feedingLogsUiState.errorMessage,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Red
-                                        )
-                                    }
-                                }
-                            }
-                            else -> {
-                                items(feedingLogsUiState.feedingLogs) { item ->
-                                    HistoryCard(
-                                        date = formatDate(item.date),
-                                        content = "${item.amount} Kg ${item.feed} - Weight: ${item.newWeight} Kg"
-                                    )
-                                }
-                                if (feedingLogsUiState.isLoadingMore) {
-                                    item {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    when(animalUiState.selectedTab) {
+                        0 -> {
+                            when {
+                                feedingLogsUiState.isLoading -> {
+                                    items(4) {
                                         Box(
                                             modifier = Modifier
-                                                .fillMaxWidth(),
-                                            contentAlignment = Alignment.Center
+                                                .fillMaxWidth()
+                                                .height(64.dp)
+                                                .clip(MaterialTheme.shapes.small)
+                                                .shimmerLoading()
+                                        )
+                                    }
+                                }
+                                feedingLogsUiState.feedingLogs.isEmpty() -> {
+                                    item {
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
-                                            CircularProgressIndicator()
+                                            Text(
+                                                text = "No feeding logs found",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Gray
+                                            )
                                         }
                                     }
                                 }
-
-                                if (feedingLogsUiState.endReached) {
+                                feedingLogsUiState.errorMessage != null -> {
                                     item {
                                         Column(
-                                            modifier = Modifier.fillMaxWidth(),
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             Text(
-                                                text = stringResource(R.string.text_end_reached),
+                                                text = feedingLogsUiState.errorMessage,
                                                 style = MaterialTheme.typography.titleMedium,
-                                                color = Color.Gray,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Red
                                             )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    items(feedingLogsUiState.feedingLogs) { item ->
+                                        HistoryCard(
+                                            date = formatDate(item.date),
+                                            content = "${item.amount} Kg ${item.feed} - Weight: ${item.newWeight} Kg"
+                                        )
+                                    }
+                                    if (feedingLogsUiState.isLoadingMore) {
+                                        item {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator()
+                                            }
+                                        }
+                                    }
+
+                                    if (feedingLogsUiState.endReached) {
+                                        item {
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.text_end_reached),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = Color.Gray,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    1 -> {
-                        when {
-                            breedingLogsUiState.isLoading -> {
-                                items(4) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(64.dp)
-                                            .clip(MaterialTheme.shapes.small)
-                                            .shimmerLoading()
-                                    )
-                                }
-                            }
-                            breedingLogsUiState.breedingLogs.isEmpty() -> {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                    ) {
-                                        Text(
-                                            text = "No breeding logs found",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Gray
-                                        )
-                                    }
-                                }
-                            }
-                            breedingLogsUiState.errorMessage != null -> {
-                                item {
-                                    Column(
-                                        modifier = Modifier.fillMaxSize(),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            text = breedingLogsUiState.errorMessage,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.Red
-                                        )
-                                    }
-                                }
-                            }
-                            else -> {
-                                items(breedingLogsUiState.breedingLogs) { item ->
-                                    HistoryCard(
-                                        date = formatDate(item.matingDate),
-                                        content = "${item.animalPair.sex}: ${item.animalPair.tag} - ${item.offspringCount} offspring"
-                                    )
-                                }
-                                if (breedingLogsUiState.isLoadingMore) {
-                                    item {
+                        1 -> {
+                            when {
+                                breedingLogsUiState.isLoading -> {
+                                    items(4) {
                                         Box(
                                             modifier = Modifier
-                                                .fillMaxWidth(),
-                                            contentAlignment = Alignment.Center
+                                                .fillMaxWidth()
+                                                .height(64.dp)
+                                                .clip(MaterialTheme.shapes.small)
+                                                .shimmerLoading()
+                                        )
+                                    }
+                                }
+                                breedingLogsUiState.breedingLogs.isEmpty() -> {
+                                    item {
+                                        Column(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally,
                                         ) {
-                                            CircularProgressIndicator()
+                                            Text(
+                                                text = "No breeding logs found",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Gray
+                                            )
                                         }
                                     }
                                 }
-
-                                if (breedingLogsUiState.endReached) {
+                                breedingLogsUiState.errorMessage != null -> {
                                     item {
                                         Column(
-                                            modifier = Modifier.fillMaxWidth(),
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalArrangement = Arrangement.Center,
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             Text(
-                                                text = stringResource(R.string.text_end_reached),
+                                                text = breedingLogsUiState.errorMessage,
                                                 style = MaterialTheme.typography.titleMedium,
-                                                color = Color.Gray,
-                                                fontWeight = FontWeight.Bold
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.Red
                                             )
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    items(breedingLogsUiState.breedingLogs) { item ->
+                                        HistoryCard(
+                                            date = formatDate(item.matingDate),
+                                            content = "${item.animalPair.sex}: ${item.animalPair.tag} - ${item.offspringCount} offspring"
+                                        )
+                                    }
+                                    if (breedingLogsUiState.isLoadingMore) {
+                                        item {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator()
+                                            }
+                                        }
+                                    }
+
+                                    if (breedingLogsUiState.endReached) {
+                                        item {
+                                            Column(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.text_end_reached),
+                                                    style = MaterialTheme.typography.titleMedium,
+                                                    color = Color.Gray,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
+                        else -> {}
                     }
-                    else -> {}
                 }
             }
 
@@ -455,6 +479,10 @@ fun AnimalDetailScreen(
                                 scope.launch {
                                     viewModel.updateStatus(statusChangeUiState.status)
                                     changeStatusSheetState.hide()
+                                }.invokeOnCompletion {
+                                    if (!changeStatusSheetState.isVisible) {
+                                        viewModel.dismissStatusChangeBottomSheet()
+                                    }
                                 }
                             },
                             modifier = Modifier.weight(1f)
