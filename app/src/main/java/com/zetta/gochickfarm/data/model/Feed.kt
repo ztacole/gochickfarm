@@ -11,3 +11,10 @@ data class Feed(
     @SerialName("price_per_unit")
     val price: Int,
 )
+
+@Serializable
+data class SimpleFeed(
+    val id: Int,
+    val name: String,
+    val quantity: Double
+)

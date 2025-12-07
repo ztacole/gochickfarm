@@ -12,3 +12,32 @@ data class Transaction(
     val date: String,
     val type: String
 )
+
+@Serializable
+data class TransactionDetail(
+    val id: Int,
+    val description: String,
+    @SerialName("total")
+    val amount: Int,
+    val date: String,
+    val type: String,
+    val animals: List<AnimalTransaction>
+)
+
+@Serializable
+data class AnimalTransaction(
+    val id: Int,
+    val tag: String,
+    val species: String,
+    val status: String
+)
+
+@Serializable
+data class TransactionRequest(
+    val description: String,
+    val amount: Int,
+    val date: String,
+    val type: String,
+    @SerialName("animal_ids")
+    val animalIds: List<Int>? = null
+)

@@ -1,6 +1,7 @@
 package com.zetta.gochickfarm.data.repository
 
 import com.zetta.gochickfarm.data.model.Feed
+import com.zetta.gochickfarm.data.model.SimpleFeed
 import com.zetta.gochickfarm.data.remote.FeedService
 import com.zetta.gochickfarm.network.MetaResponse
 
@@ -10,6 +11,17 @@ class FeedRepository(private val api: FeedService) {
         return if (response.isSuccess) {
             response.getOrNull()?.let {
                 Result.success(it)
+            } ?: Result.failure(Exception("No data found"))
+        } else {
+            Result.failure(response.exceptionOrNull() ?: Exception("Unknown error"))
+        }
+    }
+
+    suspend fun getAllWithoutPagination(): Result<List<SimpleFeed>> {
+        val response = api.getAllWithoutPagination()
+        return if (response.isSuccess) {
+            response.getOrNull()?.let {
+                Result.success(it.data)
             } ?: Result.failure(Exception("No data found"))
         } else {
             Result.failure(response.exceptionOrNull() ?: Exception("Unknown error"))
