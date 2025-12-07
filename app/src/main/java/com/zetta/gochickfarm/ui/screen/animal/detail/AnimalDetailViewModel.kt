@@ -148,7 +148,8 @@ class AnimalDetailViewModel(
                     isSuccess = true,
                     message = "Status updated successfully"
                 )
-                animalUiState = animalUiState.copy(animal = animalUiState.animal?.copy(status = status))
+                animalUiState =
+                    animalUiState.copy(animal = animalUiState.animal?.copy(status = status))
             }.onFailure {
                 statusChangeUiState = statusChangeUiState.copy(
                     message = it.message,
@@ -205,37 +206,37 @@ class AnimalDetailViewModel(
         animalUiState = animalUiState.copy(selectedTab = tab)
         fetchSelectedTab()
     }
+
+    data class AnimalUiState(
+        val animal: Animal? = null,
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null,
+        var selectedTab: Int = 0
+    )
+
+    data class FeedingLogsUiState(
+        val feedingLogs: List<FeedingLog> = emptyList(),
+        val isLoading: Boolean = false,
+        val isLoadingMore: Boolean = false,
+        val isRefreshing: Boolean = false,
+        val errorMessage: String? = null,
+        val endReached: Boolean = false
+    )
+
+    data class BreedingLogsUiState(
+        val breedingLogs: List<BreedingLog> = emptyList(),
+        val isLoading: Boolean = false,
+        val isLoadingMore: Boolean = false,
+        val isRefreshing: Boolean = false,
+        val errorMessage: String? = null,
+        val endReached: Boolean = false
+    )
+
+    data class StatusChangeUiState(
+        val status: String = "Hidup",
+        val isLoading: Boolean = false,
+        val message: String? = null,
+        val isSuccess: Boolean = false,
+        val showBottomSheet: Boolean = false
+    )
 }
-
-data class AnimalUiState(
-    val animal: Animal? = null,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
-    var selectedTab: Int = 0
-)
-
-data class FeedingLogsUiState(
-    val feedingLogs: List<FeedingLog> = emptyList(),
-    val isLoading: Boolean = false,
-    val isLoadingMore: Boolean = false,
-    val isRefreshing: Boolean = false,
-    val errorMessage: String? = null,
-    val endReached: Boolean = false
-)
-
-data class BreedingLogsUiState(
-    val breedingLogs: List<BreedingLog> = emptyList(),
-    val isLoading: Boolean = false,
-    val isLoadingMore: Boolean = false,
-    val isRefreshing: Boolean = false,
-    val errorMessage: String? = null,
-    val endReached: Boolean = false
-)
-
-data class StatusChangeUiState(
-    val status: String = "Hidup",
-    val isLoading: Boolean = false,
-    val message: String? = null,
-    val isSuccess: Boolean = false,
-    val showBottomSheet: Boolean = false
-)

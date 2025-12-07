@@ -1,9 +1,11 @@
 package com.zetta.gochickfarm.ui.screen.animal.detail
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -22,6 +25,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,14 +41,17 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +66,7 @@ import com.zetta.gochickfarm.R
 import com.zetta.gochickfarm.ui.components.AppButton
 import com.zetta.gochickfarm.ui.components.AppDropdown
 import com.zetta.gochickfarm.utils.formatDate
+import com.zetta.gochickfarm.utils.formatTime
 import com.zetta.gochickfarm.utils.shimmerLoading
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -66,7 +75,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun AnimalDetailScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToAddFeeding: (Int) -> Unit,
+    onNavigateToAddFeeding: (Int, String) -> Unit,
     viewModel: AnimalDetailViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -285,8 +294,9 @@ fun AnimalDetailScreen(
                                 else -> {
                                     items(feedingLogsUiState.feedingLogs) { item ->
                                         HistoryCard(
-                                            date = formatDate(item.date),
-                                            content = "${item.amount} Kg ${item.feed} - Weight: ${item.newWeight} Kg"
+                                            date = "${formatDate(item.date)} - ${formatTime(item.time)}",
+                                            content = "${item.amount} Kg ${item.feed} - Weight: ${item.newWeight} Kg",
+                                            detail = item.healthNotes
                                         )
                                     }
                                     if (feedingLogsUiState.isLoadingMore) {
@@ -368,7 +378,7 @@ fun AnimalDetailScreen(
                                     items(breedingLogsUiState.breedingLogs) { item ->
                                         HistoryCard(
                                             date = formatDate(item.matingDate),
-                                            content = "${item.animalPair.sex}: ${item.animalPair.tag} - ${item.offspringCount} offspring"
+                                            content = "${item.animalPair.sex}: ${item.animalPair.tag} - ${item.offspringCount} anak"
                                         )
                                     }
                                     if (breedingLogsUiState.isLoadingMore) {
@@ -407,6 +417,10 @@ fun AnimalDetailScreen(
             }
 
             if (animalUiState.animal?.status == "Hidup") {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -421,7 +435,7 @@ fun AnimalDetailScreen(
                     )
                     AppButton(
                         text = "Feed",
-                        onClick = { onNavigateToAddFeeding(animalUiState.animal.id) },
+                        onClick = { onNavigateToAddFeeding(animalUiState.animal.id, animalUiState.animal.tag) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -516,7 +530,9 @@ fun DetailRow(label: String, value: String) {
 }
 
 @Composable
-fun HistoryCard(date: String, content: String) {
+fun HistoryCard(date: String, content: String, detail: String? = null) {
+    var showDetail by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -537,6 +553,42 @@ fun HistoryCard(date: String, content: String) {
                 text = content,
                 style = MaterialTheme.typography.bodyMedium
             )
+            if (!detail.isNullOrEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .clickable(interactionSource = null, indication = null) {
+                            showDetail = !showDetail
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "See More",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        imageVector = if (!showDetail) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                AnimatedVisibility(
+                    visible = showDetail,
+                ) {
+                    Column {
+                        Text(
+                            text = "Health Notes:",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = detail,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
         }
     }
 }

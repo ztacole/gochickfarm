@@ -2,9 +2,6 @@ package com.zetta.gochickfarm.ui.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,18 +25,17 @@ import androidx.navigation.navArgument
 import com.zetta.gochickfarm.ui.screen.activity.ActivityHistoryScreen
 import com.zetta.gochickfarm.ui.screen.activity.OfflineSyncScreen
 import com.zetta.gochickfarm.ui.screen.activity.ProfileScreen
-import com.zetta.gochickfarm.ui.screen.animal.add.AddAnimalScreen
+import com.zetta.gochickfarm.ui.screen.animal.breeding.AddBreedingLogScreen
 import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailScreen
 import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailViewModel
+import com.zetta.gochickfarm.ui.screen.animal.feeding.AddFeedingLogScreen
+import com.zetta.gochickfarm.ui.screen.animal.feeding.AddFeedingLogViewModel
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListScreen
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListViewModel
-import com.zetta.gochickfarm.ui.screen.animal.update.UpdateAnimalStatusScreen
 import com.zetta.gochickfarm.ui.screen.auth.Login
 import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
 import com.zetta.gochickfarm.ui.screen.feed.add.AddFeedScreen
 import com.zetta.gochickfarm.ui.screen.feed.list.FeedListScreen
-import com.zetta.gochickfarm.ui.screen.feeding.AddBreedingLogScreen
-import com.zetta.gochickfarm.ui.screen.feeding.AddFeedingLogScreen
 import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionDetailScreen
 import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionScreen
 import com.zetta.gochickfarm.ui.screen.transaction.detail.TransactionDetailScreen
@@ -64,16 +60,12 @@ fun AppNavigation(
     )
 
     val fabScreens = listOf(
-        FabItem(
-            route = Screen.AnimalList.route,
-            label = "Add Animal",
-            onClick = { navController.navigate(Screen.AddAnimal.route) }
-        ),
-        FabItem(
-            route = Screen.FeedList.route,
-            label = "Add Feed",
-            onClick = { navController.navigate(Screen.AddFeed.route) }
-        ),
+//        Not implemented yet
+//        FabItem(
+//            route = Screen.FeedList.route,
+//            label = "Add Feed",
+//            onClick = { navController.navigate(Screen.AddFeed.route) }
+//        ),
         FabItem(
             route = Screen.TransactionList.route,
             label = "Add Transaction",
@@ -116,16 +108,16 @@ fun AppNavigation(
             startDestination = startDestination.route,
             modifier = modifierPadding,
             enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn(animationSpec = tween(300))
+                slideInHorizontally(initialOffsetX = { it })
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(200))
+                slideOutHorizontally(targetOffsetX = { -it })
             },
             popEnterTransition = {
-                slideInHorizontally(initialOffsetX = { -it }) + fadeIn(animationSpec = tween(300))
+                slideInHorizontally(initialOffsetX = { -it })
             },
             popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { it }) + fadeOut(animationSpec = tween(200))
+                slideOutHorizontally(targetOffsetX = { it })
             }
         ) {
             // Login Screen
@@ -203,33 +195,10 @@ fun AppNavigation(
                 val viewModel: AnimalDetailViewModel = koinViewModel()
                 AnimalDetailScreen(
                     onNavigateBack = { navController.navigateUp() },
-                    onNavigateToAddFeeding = { animalId ->
-                        navController.navigate(Screen.AddFeedingLog.createRoute(animalId))
+                    onNavigateToAddFeeding = { id, tag ->
+                        navController.navigate(Screen.AddFeedingLog.createRoute(id.toString(), tag))
                     },
                     viewModel = viewModel
-                )
-            }
-
-            // Add Animal Screen
-            composable(Screen.AddAnimal.route) {
-                AddAnimalScreen(
-                    onNavigateBack = { navController.navigateUp() },
-                    onSaveSuccess = { navController.navigateUp() }
-                )
-            }
-
-            // Update Animal Status Screen
-            composable(
-                route = Screen.UpdateAnimalStatus.route,
-                arguments = listOf(
-                    navArgument("animalId") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val animalId = backStackEntry.arguments?.getString("animalId") ?: ""
-                UpdateAnimalStatusScreen(
-                    animalId = animalId,
-                    onNavigateBack = { navController.navigateUp() },
-                    onSaveSuccess = { navController.navigateUp() }
                 )
             }
 
@@ -241,14 +210,23 @@ fun AppNavigation(
                         type = NavType.StringType
                         nullable = true
                         defaultValue = null
+                    },
+                    navArgument("animalTag") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
                     }
                 )
-            ) { backStackEntry ->
-                val animalId = backStackEntry.arguments?.getString("animalId")
+            ) {
+                val viewModel: AddFeedingLogViewModel = koinViewModel()
                 AddFeedingLogScreen(
-                    preSelectedAnimalId = animalId,
                     onNavigateBack = { navController.navigateUp() },
-                    onSaveSuccess = { navController.navigateUp() }
+                    onSaveSuccess = {
+                        navController.navigate(Screen.AnimalDetail.createRoute(it)) {
+                            popUpTo(Screen.Dashboard.route)
+                        }
+                    },
+                    viewModel = viewModel
                 )
             }
 

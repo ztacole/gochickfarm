@@ -167,8 +167,8 @@ fun AppTextField(
                                     )
                                 },
                                 contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
-                                    top = 0.dp,
-                                    bottom = 0.dp
+                                    top = 12.dp,
+                                    bottom = 12.dp
                                 )
                             )
                         } else {
@@ -196,8 +196,8 @@ fun AppTextField(
                                 interactionSource = interactionSource,
                                 colors = plainColors,
                                 contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(
-                                    top = 0.dp,
-                                    bottom = 0.dp
+                                    top = 12.dp,
+                                    bottom = 12.dp
                                 )
                             )
                         }

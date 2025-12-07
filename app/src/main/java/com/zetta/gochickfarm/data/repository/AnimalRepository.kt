@@ -65,7 +65,7 @@ class AnimalRepository(private val api: AnimalService) {
         }
     }
 
-    suspend fun getAllWithoutPagination(species: String?, sex: String?): Result<List<SimpleAnimal>> {
+    suspend fun getAllWithoutPagination(species: String? = null, sex: String? = null): Result<List<SimpleAnimal>> {
         val response = api.getAllWithoutPagination(species, sex)
         return if (response.isSuccess) {
             response.getOrNull()?.let {

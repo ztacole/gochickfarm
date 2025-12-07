@@ -1,7 +1,9 @@
 package com.zetta.gochickfarm.di
 
 import androidx.lifecycle.SavedStateHandle
+import com.zetta.gochickfarm.ui.screen.animal.breeding.AddBreedingLogViewModel
 import com.zetta.gochickfarm.ui.screen.animal.detail.AnimalDetailViewModel
+import com.zetta.gochickfarm.ui.screen.animal.feeding.AddFeedingLogViewModel
 import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListViewModel
 import com.zetta.gochickfarm.ui.screen.auth.AuthViewModel
 import com.zetta.gochickfarm.ui.screen.dashboard.DashboardViewModel
@@ -16,17 +18,17 @@ val viewModelModule = module {
     viewModel { DashboardViewModel(get()) }
 
     viewModel { (handle: SavedStateHandle) ->
-        AnimalListViewModel(
-        get(),
-            handle
-        )
+        AnimalListViewModel(get(), handle)
     }
     viewModel { (handle: SavedStateHandle) ->
-        AnimalDetailViewModel(
-            get(),
-            handle
-        )
+        AnimalDetailViewModel(get(), handle)
     }
+
+    viewModel { (handle: SavedStateHandle) ->
+        AddFeedingLogViewModel(get(), get(), handle)
+    }
+
+    viewModel { AddBreedingLogViewModel(get()) }
 
     viewModel { FeedListViewModel(get()) }
 
