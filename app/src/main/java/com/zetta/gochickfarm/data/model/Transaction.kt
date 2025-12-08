@@ -35,6 +35,7 @@ data class AnimalTransaction(
 @Serializable
 data class TransactionRequest(
     val description: String,
+    @SerialName("total")
     val amount: Int,
     val date: String,
     val type: String,

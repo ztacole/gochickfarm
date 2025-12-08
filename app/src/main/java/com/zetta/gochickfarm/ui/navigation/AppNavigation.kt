@@ -36,9 +36,9 @@ import com.zetta.gochickfarm.ui.screen.auth.Login
 import com.zetta.gochickfarm.ui.screen.dashboard.Dashboard
 import com.zetta.gochickfarm.ui.screen.feed.add.AddFeedScreen
 import com.zetta.gochickfarm.ui.screen.feed.list.FeedListScreen
-import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionDetailScreen
 import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionScreen
 import com.zetta.gochickfarm.ui.screen.transaction.detail.TransactionDetailScreen
+import com.zetta.gochickfarm.ui.screen.transaction.detail.TransactionDetailViewModel
 import com.zetta.gochickfarm.ui.screen.transaction.list.TransactionListScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -272,7 +272,11 @@ fun AppNavigation(
             composable(Screen.AddTransaction.route) {
                 AddTransactionScreen(
                     onNavigateBack = { navController.navigateUp() },
-                    onSaveSuccess = { navController.navigateUp() }
+                    onSaveSuccess = {
+                        navController.navigate(Screen.TransactionList.route) {
+                            popUpTo(Screen.Dashboard.route) { inclusive = true }
+                        }
+                    }
                 )
             }
 
@@ -280,31 +284,13 @@ fun AppNavigation(
             composable(
                 route = Screen.TransactionDetail.route,
                 arguments = listOf(
-                    navArgument("transactionId") { type = NavType.StringType }
+                    navArgument("transactionId") { type = NavType.IntType }
                 )
-            ) { backStackEntry ->
-                val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
+            ) {
+                val viewModel: TransactionDetailViewModel = koinViewModel()
                 TransactionDetailScreen(
-                    transactionId = transactionId,
                     onNavigateBack = { navController.navigateUp() },
-                    onNavigateToAddDetail = {
-                        navController.navigate(Screen.AddTransactionDetail.createRoute(transactionId))
-                    }
-                )
-            }
-
-            // Add Transaction Detail Screen
-            composable(
-                route = Screen.AddTransactionDetail.route,
-                arguments = listOf(
-                    navArgument("transactionId") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val transactionId = backStackEntry.arguments?.getString("transactionId") ?: ""
-                AddTransactionDetailScreen(
-                    transactionId = transactionId,
-                    onNavigateBack = { navController.navigateUp() },
-                    onSaveSuccess = { navController.navigateUp() }
+                    viewModel = viewModel
                 )
             }
 

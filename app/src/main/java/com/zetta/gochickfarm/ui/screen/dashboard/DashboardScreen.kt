@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,7 @@ import com.zetta.gochickfarm.utils.shimmerLoading
 @Composable
 fun DashboardScreen(
     summaryUiState: DashboardViewModel.SummaryUiState,
+    onRefresh: () -> Unit,
     onNavigateToAddFeeding: () -> Unit,
     onNavigateToBreeding: () -> Unit,
     onNavigateToTransaction: () -> Unit,
@@ -90,88 +92,93 @@ fun DashboardScreen(
     )
 
     Surface {
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize(),
-            overscrollEffect = null
+        PullToRefreshBox(
+            isRefreshing = summaryUiState.isRefreshing,
+            onRefresh = onRefresh
         ) {
-            // Banner
-            item { BannerSection() }
+            LazyColumn(
+                modifier = modifier
+                    .fillMaxSize(),
+                overscrollEffect = null
+            ) {
+                // Banner
+                item { BannerSection() }
 
-            item {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset { IntOffset(x = 0, y = -56) },
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                item {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .offset { IntOffset(x = 0, y = -56) },
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                        color = MaterialTheme.colorScheme.background
                     ) {
-                        ShortcutSection(shortcutItems)
-                        when {
-                            summaryUiState.isLoading -> {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(220.dp)
-                                            .clip(MaterialTheme.shapes.large)
-                                            .shimmerLoading()
-                                    )
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        Column(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            ShortcutSection(shortcutItems)
+                            when {
+                                summaryUiState.isLoading -> {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         Box(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(106.dp)
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(220.dp)
                                                 .clip(MaterialTheme.shapes.large)
                                                 .shimmerLoading()
                                         )
-                                        Box(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .height(106.dp)
-                                                .clip(MaterialTheme.shapes.large)
-                                                .shimmerLoading()
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Box(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(106.dp)
+                                                    .clip(MaterialTheme.shapes.large)
+                                                    .shimmerLoading()
+                                            )
+                                            Box(
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(106.dp)
+                                                    .clip(MaterialTheme.shapes.large)
+                                                    .shimmerLoading()
+                                            )
+                                        }
+                                    }
+                                }
+                                summaryUiState.errorMessage != null -> {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.errorContainer,
+                                        shape = MaterialTheme.shapes.medium
+                                    ) {
+                                        Text(
+                                            text = summaryUiState.errorMessage,
+                                            modifier = Modifier.padding(16.dp),
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            textAlign = TextAlign.Center
                                         )
                                     }
                                 }
-                            }
-                            summaryUiState.errorMessage != null -> {
-                                Surface(
-                                    color = MaterialTheme.colorScheme.errorContainer,
-                                    shape = MaterialTheme.shapes.medium
-                                ) {
-                                    Text(
-                                        text = summaryUiState.errorMessage,
-                                        modifier = Modifier.padding(16.dp),
-                                        color = MaterialTheme.colorScheme.error,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Center
-                                    )
+                                summaryUiState.summary != null -> {
+                                    Column {
+                                        SummarySection(summaryUiState.summary)
+                                    }
                                 }
                             }
-                            summaryUiState.summary != null -> {
-                                Column {
-                                    SummarySection(summaryUiState.summary)
-                                }
+                            Column {
+                                CategorySection(
+                                    onNavigateToChickenSearch = onNavigateToChickenSearch,
+                                    onNavigateToGoatSearch = onNavigateToGoatSearch
+                                )
                             }
+                            Spacer(Modifier.height(16.dp))
                         }
-                        Column {
-                            CategorySection(
-                                onNavigateToChickenSearch = onNavigateToChickenSearch,
-                                onNavigateToGoatSearch = onNavigateToGoatSearch
-                            )
-                        }
-                        Spacer(Modifier.height(16.dp))
                     }
                 }
             }
@@ -547,6 +554,7 @@ private fun DashboardPreview() {
                     2000000
                 )
             ),
+            {},
             {},
             {},
             {},

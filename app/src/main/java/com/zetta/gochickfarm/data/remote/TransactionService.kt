@@ -3,6 +3,7 @@ package com.zetta.gochickfarm.data.remote
 import com.zetta.gochickfarm.data.model.Transaction
 import com.zetta.gochickfarm.data.model.TransactionDetail
 import com.zetta.gochickfarm.data.model.TransactionRequest
+import com.zetta.gochickfarm.network.BaseMessageResponse
 import com.zetta.gochickfarm.network.BaseResponse
 import com.zetta.gochickfarm.network.MetaResponse
 import io.ktor.client.HttpClient
@@ -33,7 +34,7 @@ class TransactionService(private val client: HttpClient) {
         client.get("$BASE_ROUTE/$id")
     }
 
-    suspend fun createNewTransaction(description: String, amount: Int, date: String, type: String, animalIds: List<Int>? = null): Result<BaseResponse<Transaction>> = safeApiCall {
+    suspend fun createNewTransaction(description: String, amount: Int, date: String, type: String, animalIds: List<Int>? = null): Result<BaseMessageResponse> = safeApiCall {
         client.post(BASE_ROUTE) {
             setBody(TransactionRequest(description, amount, date, type, animalIds))
         }

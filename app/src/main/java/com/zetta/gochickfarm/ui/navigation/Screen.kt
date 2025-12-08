@@ -20,9 +20,6 @@ sealed class Screen(val route: String) {
     object TransactionDetail : Screen("transaction_detail/{transactionId}") {
         fun createRoute(transactionId: Int) = "transaction_detail/$transactionId"
     }
-    object AddTransactionDetail : Screen("add_transaction_detail/{transactionId}") {
-        fun createRoute(transactionId: String) = "add_transaction_detail/$transactionId"
-    }
     object ActivityHistory : Screen("activity_history")
     object Profile : Screen("profile")
     object OfflineSync : Screen("offline_sync")

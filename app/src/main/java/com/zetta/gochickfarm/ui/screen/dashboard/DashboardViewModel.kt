@@ -19,17 +19,23 @@ class DashboardViewModel(
         fetchSummary()
     }
 
-    fun fetchSummary() {
+    private fun fetchSummary() {
         viewModelScope.launch {
             summaryUiState = summaryUiState.copy(isLoading = true)
             repository.getSummary()
-                .onSuccess { summaryUiState = summaryUiState.copy(summary = it, isLoading = false) }
-                .onFailure { summaryUiState = summaryUiState.copy(errorMessage = it.message, isLoading = false) }
+                .onSuccess { summaryUiState = summaryUiState.copy(summary = it, isLoading = false, isRefreshing = false) }
+                .onFailure { summaryUiState = summaryUiState.copy(errorMessage = it.message, isLoading = false, isRefreshing = false) }
         }
+    }
+
+    fun refreshSummary() {
+        summaryUiState.copy(isRefreshing = true)
+        fetchSummary()
     }
 
     data class SummaryUiState(
         val isLoading: Boolean = false,
+        val isRefreshing: Boolean = false,
         val summary: Summary? = null,
         val errorMessage: String? = null
     )

@@ -17,6 +17,7 @@ fun Dashboard(
 
     DashboardScreen(
         summaryUiState = viewModel.summaryUiState,
+        onRefresh = viewModel::refreshSummary,
         onNavigateToAddFeeding = onNavigateToAddFeeding,
         onNavigateToBreeding = onNavigateToBreeding,
         onNavigateToTransaction = onNavigateToTransaction,

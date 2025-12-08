@@ -8,6 +8,8 @@ import com.zetta.gochickfarm.ui.screen.animal.list.AnimalListViewModel
 import com.zetta.gochickfarm.ui.screen.auth.AuthViewModel
 import com.zetta.gochickfarm.ui.screen.dashboard.DashboardViewModel
 import com.zetta.gochickfarm.ui.screen.feed.list.FeedListViewModel
+import com.zetta.gochickfarm.ui.screen.transaction.add.AddTransactionViewModel
+import com.zetta.gochickfarm.ui.screen.transaction.detail.TransactionDetailViewModel
 import com.zetta.gochickfarm.ui.screen.transaction.list.TransactionListViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -33,4 +35,8 @@ val viewModelModule = module {
     viewModel { FeedListViewModel(get()) }
 
     viewModel { TransactionListViewModel(get()) }
+    viewModel { (handle: SavedStateHandle) ->
+        TransactionDetailViewModel(get(), handle)
+    }
+    viewModel { AddTransactionViewModel(get(), get()) }
 }

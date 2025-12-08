@@ -127,7 +127,8 @@ fun AddBreedingLogScreen(
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(bottom = 16.dp, start = 16.dp, end = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                overscrollEffect = null
             ) {
                 item { 
                     Text("Choose species", style = MaterialTheme.typography.bodyMedium)
@@ -135,7 +136,7 @@ fun AddBreedingLogScreen(
                     AppDropdown(
                         items = uiState.speciesList,
                         selectedItem = input.selectedSpecies,
-                        onItemSelected = { viewModel.updateSpecies(it) },
+                        onItemSelected = viewModel::updateSpecies,
                         placeholder = "Select the species"
                     )
                 }
@@ -151,7 +152,7 @@ fun AddBreedingLogScreen(
                             AppDropdown(
                                 items = uiState.maleList.map { it.tag },
                                 selectedItem = input.maleTag ?: "",
-                                onItemSelected = { viewModel.updateMale(it) },
+                                onItemSelected = viewModel::updateMale,
                                 placeholder = "Male Tag"
                             )
                         }
@@ -161,7 +162,7 @@ fun AddBreedingLogScreen(
                             AppDropdown(
                                 items = uiState.femaleList.map { it.tag },
                                 selectedItem = input.femaleTag ?: "",
-                                onItemSelected = { viewModel.updateFemale(it) },
+                                onItemSelected = viewModel::updateFemale,
                                 placeholder = "Female Tag"
                             )
                         }
@@ -173,7 +174,7 @@ fun AddBreedingLogScreen(
                     Spacer(Modifier.height(4.dp))
                     AppDatePicker(
                         value = input.matingDate,
-                        onValueChange = { viewModel.updateMatingDate(it) },
+                        onValueChange = viewModel::updateMatingDate,
                         placeholder = "yyyy-MM-dd",
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -237,7 +238,7 @@ fun AddBreedingLogScreen(
                 item {
                     AppButton(
                         text = "Add offspring",
-                        onClick = { viewModel.addOffspring() },
+                        onClick = viewModel::addOffspring,
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateItem(

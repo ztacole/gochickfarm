@@ -243,7 +243,8 @@ fun AnimalDetailScreen(
                     modifier = Modifier
                         .fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    overscrollEffect = null
                 ) {
                     when(animalUiState.selectedTab) {
                         0 -> {

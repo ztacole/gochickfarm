@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.Grass
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.MonetizationOn
 import androidx.compose.material.icons.rounded.Pets
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -97,6 +98,7 @@ fun BottomNavigationBar(
     var lastClickTime by remember { mutableLongStateOf(0) }
 
     Surface {
+        HorizontalDivider()
         NavigationBar(
             modifier = Modifier
                 .onGloballyPositioned {
@@ -182,7 +184,7 @@ fun BottomNavigationBar(
                                 selectedIconColor = MaterialTheme.colorScheme.primary,
                                 unselectedIconColor = MaterialTheme.colorScheme.outline,
                                 indicatorColor = Color.Transparent
-                            )
+                            ),
                         )
                     }
                 }
