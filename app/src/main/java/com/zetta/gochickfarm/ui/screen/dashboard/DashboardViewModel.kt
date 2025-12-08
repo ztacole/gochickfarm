@@ -29,7 +29,7 @@ class DashboardViewModel(
     }
 
     fun refreshSummary() {
-        summaryUiState.copy(isRefreshing = true)
+        summaryUiState.copy(isRefreshing = true, errorMessage = null, isLoading = false, summary = null)
         fetchSummary()
     }
 

@@ -154,7 +154,8 @@ fun DashboardScreen(
                                 summaryUiState.errorMessage != null -> {
                                     Surface(
                                         color = MaterialTheme.colorScheme.errorContainer,
-                                        shape = MaterialTheme.shapes.medium
+                                        shape = MaterialTheme.shapes.medium,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)
                                     ) {
                                         Text(
                                             text = summaryUiState.errorMessage,

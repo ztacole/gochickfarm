@@ -30,7 +30,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            buildConfigField("String", "BASE_URL", "\"https://gochickfarm.com/api/\"")
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:3000/gochick-farm/api/v1/mobile/\"")
         }
     }
     compileOptions {
